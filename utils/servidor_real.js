@@ -1,6 +1,6 @@
 /**
  * Lida com toda a comunicação com o servidor (API REST)
- */
+ */ 
 async function lerJogo() {
   try {
     const response = await fetch('http://127.0.0.1:8000/api/jogo')
@@ -76,7 +76,7 @@ async function removerJogo(jogos) {
 
     return response.status == 204
   } catch (error) {
-    //console.log(error)
+    console.log(error)
     return false
   }
 }

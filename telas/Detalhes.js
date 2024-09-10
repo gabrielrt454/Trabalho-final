@@ -1,15 +1,34 @@
 import { useEffect, useState } from 'react'
 import { SafeAreaView, StyleSheet, View } from 'react-native'
 import { Button, TextInput, Appbar } from 'react-native-paper'
+import { Picker } from '@react-native-picker/picker'
 
 import servidor_real from '../utils/servidor_real'
 
 export default function Adicionar({ route, navigation }) {
   const [id, setId] = useState('')
   const [nome, setJogo] = useState('')
-  const [tecnologia_id, setTecnologia] = useState('')
+  const [tecnologia_id, setTecnologia_id] = useState('')
   const [preset, setPreset] = useState('')
   const [fps, setFps] = useState('')
+  const [tecnologias,setTecnologias] = useState([])
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      let tecnologias = await servidor_real.lerTecnologias()
+      if (tecnologias) {
+        setTecnologias(tecnologias)
+      } else {
+          
+        setTecnologias("Erro ao tentar ler as tecnologias")
+      }
+    });
+  
+    return unsubscribe;
+  }, [navigation])
+
+
+
+
   async function removerJogo() {
     let resp = await servidor_real.removerJogo({
       id: id,
@@ -20,12 +39,9 @@ export default function Adicionar({ route, navigation }) {
     })
     
     if(resp) {
-
       alert("Jogo removido")
       navigation.navigate("Principal")
-      
     } else {
-      
       alert("Erro ao remover o jogo")
     }
   }
@@ -53,7 +69,7 @@ export default function Adicionar({ route, navigation }) {
     if (jogo) {
       setId(jogo.id)
       setJogo(jogo.nome)
-      setTecnologia(jogo.tecnologia_id)//tecnologia_id ?
+      setTecnologia_id(jogo.tecnologia_id)//tecnologia_id ?
       setPreset(jogo.preset)
       setFps(jogo.fps)
     }
@@ -74,7 +90,7 @@ export default function Adicionar({ route, navigation }) {
           readOnly={true}
           onChangeText={setId}
         />
-
+        
         <TextInput
           style={styles.item}
           label="Nome do jogo"
@@ -82,11 +98,29 @@ export default function Adicionar({ route, navigation }) {
           onChangeText={setJogo}
         />
 
+
+        <Picker
+        selectedValue={tecnologia_id}
+        onValueChange={(tecnologia_id, idx) =>
+          setTecnologia_id(tecnologia_id)
+        }>
+          
+          {
+            tecnologias.map((t) => (
+              <Picker.Item 
+              key={t.id} 
+              label={t.tecnologias_nome} 
+              value={t.id} />
+            ))
+          }
+        </Picker>
+
+
         <TextInput
           style={styles.item}
           label="Tecnologia utilizada"
           value={tecnologia_id}
-          onChangeText={setTecnologia}
+          onChangeText={setTecnologia_id}
         />
 
         <TextInput

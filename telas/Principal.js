@@ -1,38 +1,33 @@
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView, StyleSheet } from 'react-native'
-import { DataTable, FAB, Appbar } from 'react-native-paper'
-import { useState, useEffect } from 'react'
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { DataTable, FAB, Appbar } from 'react-native-paper';
+import { useState, useEffect } from 'react';
 
-import servidor_real from '../utils/servidor_real'
+import servidor_real from '../utils/servidor_real';
 
 export default function Principal({ navigation }) {
-  const [jogo, setJogo] = useState([])
-  const [tecnologia, setTecnologia] = useState([])
-  function verDetalhes(jogo) {
-    navigation.navigate('Detalhes', jogo)
-  }
-
+  const [jogo, setJogo] = useState([]);
+  const [tecnologias, setTecnologias] = useState([]);
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', async () => {
-      let jogo = await servidor_real.lerJogo()
-      let tecnologia = await servidor_real.lerTecnologias()
-      if (jogo) {
-        setJogo(jogo)
-      } else {
-        console.log(erro)
-        alert("Erro ao tentar ler os produtos")
-      }
+      let jogo = await servidor_real.lerJogo();
+    //  let tecnologias = await servidor_real.lerTecnologias();
 
-     /** if (tecnologia) {
-        setTecnologia(tecnologia)
+      if (jogo) {
+        console.dir(jogo)
+        setJogo(jogo);
       } else {
-        console.log(erro)
-        alert("Erro ao tentar ler os produtos")
-      }*/
+        console.log(erro);
+        alert("Erro ao tentar ler os jogos");
+      }
     });
 
     return unsubscribe;
-  }, [navigation])
+  }, [navigation]);
+
+  function verDetalhes(jogo) {
+    navigation.navigate('Detalhes', jogo);
+  }
 
   return (
     <>
@@ -47,30 +42,24 @@ export default function Principal({ navigation }) {
             <DataTable.Title>Tecnologia</DataTable.Title>
             <DataTable.Title>Preset</DataTable.Title>
             <DataTable.Title numeric>Fps adquirido</DataTable.Title>
-
           </DataTable.Header>
 
-          {jogo.map((jogo) => (
-            <DataTable.Row
-              key={jogo.id}
-              onPress={() => verDetalhes(jogo)}
-          
-              
-            >
-           
-              <DataTable.Cell>{jogo.nome}</DataTable.Cell>
-              <DataTable.Cell>{jogo.tecnologia_id }</DataTable.Cell>
-              <DataTable.Cell>{jogo.preset}</DataTable.Cell>
-              <DataTable.Cell numeric>{jogo.fps}</DataTable.Cell>
-
-            </DataTable.Row>
-          ))}
-
+          {jogo.map((jogo) => {
+            const tecnologia = tecnologias.find(t => t.id === jogo.tecnologia_id);
+            return (
+              <DataTable.Row key={jogo.id} onPress={() => verDetalhes(jogo)}>
+                <DataTable.Cell>{jogo.nome}</DataTable.Cell>
+                <DataTable.Cell>{jogo.tecnologia.tecnologias_nome}</DataTable.Cell>
+                <DataTable.Cell>{jogo.preset}</DataTable.Cell>
+                <DataTable.Cell numeric>{jogo.fps}</DataTable.Cell>
+              </DataTable.Row>
+            );
+          })}
         </DataTable>
 
         <StatusBar mode="auto" />
-
       </SafeAreaView>
+
       <FAB
         style={styles.fab}
         small

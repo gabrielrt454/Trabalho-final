@@ -1,14 +1,31 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { SafeAreaView, StyleSheet } from 'react-native';
 import { Button, TextInput, Appbar } from 'react-native-paper';
-
+import { Picker } from '@react-native-picker/picker'
 import servidor_real from '../utils/servidor_real'
 
 export default function Adicionar({ navigation }) {
   const [nome, setNome] = useState('')
-  const [tecnologia_id, setTecnologia] = useState('')
+  const [tecnologia_id, setTecnologia_id] = useState('')
   const [preset, setPreset] = useState('')
   const [fps, setFps] = useState('')
+  const [tecnologias,setTecnologias] = useState([])
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      let tecnologias = await servidor_real.lerTecnologias()
+      if (tecnologias) {
+        setTecnologias(tecnologias)
+      } else {
+          
+        setTecnologias("Erro ao tentar ler as tecnologias")
+      }
+    });
+  
+    return unsubscribe;
+  }, [navigation])
+
+
+
   async function adicionarJogo() {
     let resp = await servidor_real.adicionarJogo({//o que é isso?
       nome: nome,
@@ -19,7 +36,7 @@ export default function Adicionar({ navigation }) {
     if(resp) {//o que é isso?
       alert("Produto adicionado com sucesso")
       setNome("")
-      setTecnologia("")
+      setTecnologia_id("")
       setPreset("")
       setFps("")
     } else {
@@ -29,6 +46,10 @@ export default function Adicionar({ navigation }) {
 
   return (
     <>
+
+
+
+
       <Appbar>
         <Appbar.BackAction onPress={() => { navigation.goBack() }} />
         <Appbar.Content title="Adicionar informações dos testes" />
@@ -41,14 +62,23 @@ export default function Adicionar({ navigation }) {
           value={nome}
           onChangeText={setNome}
         />
-
-        <TextInput
-          style={styles.item}
-          label="tecnologia"
-          value={tecnologia_id}
-          onChangeText={setTecnologia}
-        />
-
+         <Picker
+        selectedValue={tecnologia_id}
+        onValueChange={(tecnologia_id, idx) =>
+          setTecnologia_id(tecnologia_id)
+        }>
+          
+          {
+            tecnologias.map((t) => (
+              <Picker.Item 
+              key={t.id} 
+              label={t.tecnologias_nome} 
+              value={t.id} />
+            ))
+          }
+      </Picker>
+        
+      
         <TextInput
           style={styles.item}
           label="Preset"
